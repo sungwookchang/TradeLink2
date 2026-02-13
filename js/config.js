@@ -8,7 +8,14 @@ const SUPABASE_KEY = 'sb_publishable_R8bdG2HpEuXT4Uj31eMRbQ_qWcTUxlH';
  * Supabase REST API를 사용한 쿼리
  */
 async function supabaseQuery(table, method = 'GET', data = null) {
-  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  let url = `${SUPABASE_URL}/rest/v1/${table}`;
+
+  // select 파라미터 추가 (POST/PATCH/DELETE 응답 포함)
+  if (!url.includes('?')) {
+    url += '?select=*';
+  } else if (!url.includes('select=')) {
+    url += '&select=*';
+  }
 
   const options = {
     method,
@@ -36,7 +43,9 @@ async function supabaseQuery(table, method = 'GET', data = null) {
       return { data: [], error: null };
     }
 
-    const responseData = await response.json();
+    // 응답이 비어있을 수 있으므로 안전하게 처리
+    const text = await response.text();
+    const responseData = text ? JSON.parse(text) : [];
     return { data: responseData, error: null };
   } catch (error) {
     console.error(`Supabase API 오류 (${table}):`, error);
