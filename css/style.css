@@ -7,17 +7,17 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     color: #333;
     line-height: 1.6;
 }
 
 /* ===== 헤더 ===== */
 .header {
-    background: linear-gradient(135deg, #4db8ff 0%, #2eb8d9 100%);
-    color: white;
-    padding: 1.5rem 0;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    color: #333;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e5e5;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -33,8 +33,9 @@ body {
 }
 
 .logo {
-    font-size: 1.8rem;
-    font-weight: bold;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
 }
 
 /* ===== 컨테이너 & 레이아웃 ===== */
@@ -55,16 +56,15 @@ body {
 
 /* ===== 사이드바 ===== */
 .sidebar {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
     height: fit-content;
     position: sticky;
     top: 100px;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2rem;
 }
 
 /* ===== 검색 ===== */
@@ -74,17 +74,18 @@ body {
 
 .search-input {
     width: 100%;
-    padding: 0.8rem;
-    border: 2px solid #ddd;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #e0e0e0;
     border-radius: 6px;
     font-size: 0.9rem;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
 }
 
 .search-input:focus {
     outline: none;
-    border-color: #4db8ff;
-    box-shadow: 0 0 0 3px rgba(77, 184, 255, 0.1);
+    border-color: #2F80ED;
+    background-color: #ffffff;
 }
 
 /* ===== 카테고리 섹션 ===== */
@@ -93,10 +94,12 @@ body {
 }
 
 .category-section h2 {
-    font-size: 0.95rem;
+    font-size: 0.75rem;
     margin-bottom: 0.8rem;
-    color: #4db8ff;
+    color: #888;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .category-list {
@@ -107,12 +110,12 @@ body {
 
 .category-list button,
 .category-btn {
-    padding: 0.5rem 0.8rem;
-    border: 2px solid #e0e0e0;
-    background: white;
+    padding: 0.55rem 1rem;
+    border: 1px solid transparent;
+    background: #f5f5f5;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     font-size: 0.85rem;
     text-align: left;
     color: #333;
@@ -121,16 +124,14 @@ body {
 
 .category-list button:hover,
 .category-btn:hover {
-    border-color: #4db8ff;
-    background-color: #f0f8ff;
-    color: #4db8ff;
+    background-color: #efefef;
 }
 
 .category-list button.active,
 .category-btn.active {
-    background-color: #4db8ff;
+    background-color: #2F80ED;
     color: white;
-    border-color: #4db8ff;
+    border-color: #2F80ED;
 }
 
 /* ===== 버튼 ===== */
@@ -146,14 +147,12 @@ body {
 }
 
 .btn-primary {
-    background-color: #4db8ff;
+    background-color: #2F80ED;
     color: white;
 }
 
 .btn-primary:hover {
-    background-color: #3ea8d5;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(77, 184, 255, 0.4);
+    background-color: #1e5fc9;
 }
 
 .btn-secondary {
@@ -166,15 +165,15 @@ body {
 }
 
 .btn-host-mode {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
+    background-color: transparent;
+    color: #666;
     border: none;
     padding: 0.3rem 0.5rem;
     font-size: 1.3rem;
 }
 
 .btn-host-mode:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    color: #333;
 }
 
 .btn-close {
@@ -209,8 +208,8 @@ body {
 
 /* ===== 호스트 패널 ===== */
 .host-panel {
-    border-top: 2px solid #e0e0e0;
-    padding-top: 1rem;
+    border-top: 1px solid #e5e5e5;
+    padding-top: 1.5rem;
 }
 
 .host-panel.hidden {
@@ -218,10 +217,12 @@ body {
 }
 
 .host-panel h2 {
-    font-size: 0.95rem;
+    font-size: 0.75rem;
     margin-bottom: 0.8rem;
-    color: #4db8ff;
+    color: #888;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .category-list-host {
@@ -237,14 +238,14 @@ body {
     align-items: center;
     padding: 0.6rem 0.8rem;
     background-color: #f9f9f9;
-    border-radius: 6px;
-    border: 1px solid #e0e0e0;
-    transition: all 0.3s ease;
+    border-radius: 4px;
+    border: 1px solid #e5e5e5;
+    transition: all 0.2s ease;
 }
 
 .category-item-host:hover {
-    background-color: #f0f8ff;
-    border-color: #4db8ff;
+    background-color: #f5f5f5;
+    border-color: #ddd;
 }
 
 .category-name {
@@ -266,10 +267,9 @@ body {
 
 /* ===== 링크 리스트 ===== */
 .links-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
 }
 
 .links-section h2 {
@@ -284,16 +284,16 @@ body {
 }
 
 .link-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    background: white;
+    transition: all 0.2s ease;
 }
 
 .link-card:hover {
-    border-color: #4db8ff;
-    box-shadow: 0 4px 12px rgba(77, 184, 255, 0.2);
-    transform: translateY(-2px);
+    border-color: #d0d0d0;
+    background-color: #fafafa;
 }
 
 .link-header {
@@ -305,9 +305,9 @@ body {
 }
 
 .link-title {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 600;
-    color: #4db8ff;
+    color: #333;
     margin: 0;
 }
 
@@ -341,11 +341,12 @@ body {
 
 .category-badge {
     display: inline-block;
-    background-color: #f0f8ff;
-    color: #4db8ff;
-    padding: 0.3rem 0.8rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
+    background-color: #f0f0f0;
+    color: #666;
+    padding: 0.35rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 .link-actions {
@@ -368,10 +369,6 @@ body {
     opacity: 1;
 }
 
-.category-order {
-    display: flex;
-    gap: 0.2rem;
-}
 
 .link-card-actions {
     display: flex;
@@ -408,8 +405,8 @@ body {
 
 .modal-content {
     background: white;
-    border-radius: 8px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     max-width: 500px;
     width: 90%;
     max-height: 80vh;
@@ -426,8 +423,9 @@ body {
 
 .modal-header h3 {
     margin: 0;
-    font-size: 1.3rem;
-    color: #4db8ff;
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
 }
 
 /* ===== 폼 ===== */
@@ -462,8 +460,7 @@ body {
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #4db8ff;
-    box-shadow: 0 0 0 3px rgba(77, 184, 255, 0.1);
+    border-color: #2F80ED;
 }
 
 .form-actions {

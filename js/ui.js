@@ -125,28 +125,13 @@ async function renderHostPanel() {
     categoryListHost.innerHTML = '';
 
     const categories = await getAllCategories();
-    categories.forEach((category, index) => {
+    categories.forEach((category) => {
       const categoryItem = document.createElement('div');
       categoryItem.className = 'category-item-host';
-
-      let orderButtons = '<div class="category-order">';
-      if (index > 0) {
-        orderButtons += `<button class="btn-icon" onclick="reorderCategoryHandler('${category.id}', 'up')" title="위로">⬆️</button>`;
-      } else {
-        orderButtons += `<button class="btn-icon" style="opacity: 0.3; cursor: not-allowed;">⬆️</button>`;
-      }
-
-      if (index < categories.length - 1) {
-        orderButtons += `<button class="btn-icon" onclick="reorderCategoryHandler('${category.id}', 'down')" title="아래로">⬇️</button>`;
-      } else {
-        orderButtons += `<button class="btn-icon" style="opacity: 0.3; cursor: not-allowed;">⬇️</button>`;
-      }
-      orderButtons += '</div>';
 
       categoryItem.innerHTML = `
         <span class="category-name">${escapeHtml(category.name)}</span>
         <div class="category-actions">
-          ${orderButtons}
           <button class="btn-icon" onclick="editCategoryWrapper('${category.id}')" title="수정">✎</button>
           <button class="btn-icon" onclick="deleteCategoryWrapper('${category.id}')" title="삭제">✕</button>
         </div>
