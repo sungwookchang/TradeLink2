@@ -68,11 +68,18 @@ async function renderLinks(categoryId, query = '') {
     return;
   }
 
+  // 모든 카테고리 미리 로드 (효율성 향상)
+  const allCategories = await getAllCategories();
+  const categoryMap = {};
+  allCategories.forEach(cat => {
+    categoryMap[cat.id] = cat;
+  });
+
   links.forEach(link => {
     const linkCard = document.createElement('div');
     linkCard.className = 'link-card';
 
-    const category = link.category_id ? await getCategory(link.category_id) : null;
+    const category = link.category_id ? categoryMap[link.category_id] : null;
     const categoryBadge = category ? `<span class="category-badge">${escapeHtml(category.name)}</span>` : '';
 
     let actions = '';
