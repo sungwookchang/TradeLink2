@@ -213,19 +213,31 @@ async function getLink(linkId) {
  */
 async function addCategory(categoryData) {
   try {
+    console.log('카테고리 추가 시도:', categoryData);
+
     const { data, error } = await supabase
       .from('categories')
       .insert({
         name: categoryData.name,
-        description: categoryData.description
+        description: categoryData.description || null
       })
       .select();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase 오류 상세:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      throw error;
+    }
+
+    console.log('카테고리 추가 성공:', data);
     return data[0];
   } catch (error) {
     console.error('카테고리 추가 오류:', error);
-    return null;
+    throw new Error(error.message || '카테고리 추가 실패');
   }
 }
 
