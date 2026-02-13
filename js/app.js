@@ -120,15 +120,15 @@ function attachEventListeners() {
     });
   });
 
-  // 모달 배경 클릭으로 닫기
-  const modals = document.querySelectorAll('.modal');
-  modals.forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        closeModal(modal.id);
+  // 모달 배경 클릭으로 닫기 (카테고리 모달만, 링크 모달은 닫지 않음)
+  const categoryModal = document.getElementById('categoryModal');
+  if (categoryModal) {
+    categoryModal.addEventListener('click', (e) => {
+      if (e.target === categoryModal) {
+        closeModal('categoryModal');
       }
     });
-  });
+  }
 }
 
 /**

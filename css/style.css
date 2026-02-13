@@ -356,14 +356,21 @@ body {
 .btn-icon {
     background: none;
     border: none;
-    font-size: 1.2rem;
+    font-size: 0.9rem;
     cursor: pointer;
-    padding: 0.2rem;
+    padding: 0.1rem 0.3rem;
     transition: transform 0.2s ease;
+    opacity: 0.7;
 }
 
-.btn-icon:hover {
-    transform: scale(1.2);
+.btn-icon:hover:not([style*="opacity: 0.3"]) {
+    transform: scale(1.15);
+    opacity: 1;
+}
+
+.category-order {
+    display: flex;
+    gap: 0.2rem;
 }
 
 .link-card-actions {

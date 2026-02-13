@@ -261,3 +261,15 @@ function deleteCategoryHandler(categoryId) {
     updateUI();
   }
 }
+
+/**
+ * 카테고리 순서 변경 처리
+ */
+function reorderCategoryHandler(categoryId, direction) {
+  if (!isHostMode) return;
+
+  const result = reorderCategory(categoryId, direction);
+  if (result) {
+    updateUI();
+  }
+}

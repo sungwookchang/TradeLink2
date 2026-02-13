@@ -195,3 +195,29 @@ function getAllCategories() {
   const data = getData();
   return data.categories;
 }
+
+/**
+ * 카테고리 순서 변경
+ */
+function reorderCategory(categoryId, direction) {
+  const data = getData();
+  const index = data.categories.findIndex(c => c.id === categoryId);
+
+  if (index === -1) return false;
+
+  if (direction === 'up' && index > 0) {
+    // 위로 이동
+    [data.categories[index], data.categories[index - 1]] =
+    [data.categories[index - 1], data.categories[index]];
+    saveData(data);
+    return true;
+  } else if (direction === 'down' && index < data.categories.length - 1) {
+    // 아래로 이동
+    [data.categories[index], data.categories[index + 1]] =
+    [data.categories[index + 1], data.categories[index]];
+    saveData(data);
+    return true;
+  }
+
+  return false;
+}
