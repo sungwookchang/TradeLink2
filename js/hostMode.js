@@ -8,7 +8,7 @@ let isHostMode = false;
 /**
  * 호스트 모드 토글
  */
-function toggleHostMode() {
+async function toggleHostMode() {
   isHostMode = !isHostMode;
 
   const hostModeToggle = document.getElementById('hostModeToggle');
@@ -16,7 +16,7 @@ function toggleHostMode() {
     hostModeToggle.textContent = isHostMode ? '🔓' : '🔒';
   }
 
-  updateUI();
+  await updateUI();
 }
 
 /**
@@ -31,7 +31,7 @@ function getHostMode() {
 /**
  * 링크 추가 폼 열기
  */
-function openAddLinkForm() {
+async function openAddLinkForm() {
   if (!isHostMode) return;
 
   currentEditLinkId = null;
@@ -52,7 +52,7 @@ function openAddLinkForm() {
   const linkCategory = document.getElementById('linkCategory');
   if (linkCategory) {
     linkCategory.innerHTML = '';
-    const categories = getAllCategories();
+    const categories = await getAllCategories();
     categories.forEach(category => {
       const option = document.createElement('option');
       option.value = category.id;
@@ -67,25 +67,25 @@ function openAddLinkForm() {
 /**
  * 링크 추가 처리
  */
-function addLinkHandler(formData) {
-  addLink(formData.categoryId, {
+async function addLinkHandler(formData) {
+  await addLink(formData.categoryId, {
     title: formData.title,
     description: formData.description,
     url: formData.url
   });
 
-  updateUI();
+  await updateUI();
   closeModal('linkModal');
 }
 
 /**
  * 링크 편집 폼 열기
  */
-function openEditLinkForm(linkId) {
+async function openEditLinkForm(linkId) {
   if (!isHostMode) return;
 
   currentEditLinkId = linkId;
-  const link = getLink(linkId);
+  const link = await getLink(linkId);
 
   if (!link) return;
 
@@ -97,19 +97,19 @@ function openEditLinkForm(linkId) {
 
   // 폼 데이터 채우기
   document.getElementById('linkTitle').value = link.title;
-  document.getElementById('linkDescription').value = link.description;
+  document.getElementById('linkDescription').value = link.description || '';
   document.getElementById('linkUrl').value = link.url;
 
   // 카테고리 드롭다운 채우기 및 선택
   const linkCategory = document.getElementById('linkCategory');
   if (linkCategory) {
     linkCategory.innerHTML = '';
-    const categories = getAllCategories();
+    const categories = await getAllCategories();
     categories.forEach(category => {
       const option = document.createElement('option');
       option.value = category.id;
       option.textContent = category.name;
-      if (category.id === link.categoryId) {
+      if (category.id === link.category_id) {
         option.selected = true;
       }
       linkCategory.appendChild(option);
@@ -122,22 +122,27 @@ function openEditLinkForm(linkId) {
 /**
  * 링크 수정 처리
  */
-function editLinkHandler(linkId, newData) {
-  updateLink(linkId, newData);
+async function editLinkHandler(linkId, newData) {
+  await updateLink(linkId, {
+    title: newData.title,
+    description: newData.description,
+    url: newData.url,
+    category_id: newData.categoryId
+  });
 
-  updateUI();
+  await updateUI();
   closeModal('linkModal');
 }
 
 /**
  * 링크 삭제 처리
  */
-function deleteLinkHandler(linkId) {
+async function deleteLinkHandler(linkId) {
   if (!isHostMode) return;
 
   if (confirm('이 링크를 삭제하시겠습니까?')) {
-    deleteLink(linkId);
-    updateUI();
+    await deleteLink(linkId);
+    await updateUI();
   }
 }
 
@@ -169,24 +174,24 @@ function openAddCategoryForm() {
 /**
  * 카테고리 추가 처리
  */
-function addCategoryHandler(categoryData) {
-  addCategory({
+async function addCategoryHandler(categoryData) {
+  await addCategory({
     name: categoryData.name,
     description: categoryData.description
   });
 
-  updateUI();
+  await updateUI();
   closeModal('categoryModal');
 }
 
 /**
  * 카테고리 편집 폼 열기
  */
-function openEditCategoryForm(categoryId) {
+async function openEditCategoryForm(categoryId) {
   if (!isHostMode) return;
 
   currentEditCategoryId = categoryId;
-  const category = getCategory(categoryId);
+  const category = await getCategory(categoryId);
 
   if (!category) return;
 
@@ -198,7 +203,7 @@ function openEditCategoryForm(categoryId) {
 
   // 폼 데이터 채우기
   document.getElementById('categoryName').value = category.name;
-  document.getElementById('categoryDescription').value = category.description;
+  document.getElementById('categoryDescription').value = category.description || '';
 
   openModal('categoryModal');
 }
@@ -206,22 +211,22 @@ function openEditCategoryForm(categoryId) {
 /**
  * 카테고리 수정 처리
  */
-function editCategoryHandler(categoryId, newData) {
-  updateCategory(categoryId, newData);
+async function editCategoryHandler(categoryId, newData) {
+  await updateCategory(categoryId, newData);
 
-  updateUI();
+  await updateUI();
   closeModal('categoryModal');
 }
 
 /**
  * 카테고리 삭제 처리
  */
-function deleteCategoryHandler(categoryId) {
+async function deleteCategoryHandler(categoryId) {
   if (!isHostMode) return;
 
   if (confirm('이 카테고리를 삭제하시겠습니까? 해당 카테고리의 모든 링크도 함께 삭제됩니다.')) {
-    deleteCategory(categoryId);
+    await deleteCategory(categoryId);
     currentCategoryId = null;  // 삭제된 카테고리를 보고 있었다면 전체 보기로 변경
-    updateUI();
+    await updateUI();
   }
 }

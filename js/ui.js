@@ -6,7 +6,7 @@
 /**
  * 모든 카테고리 렌더링
  */
-function renderCategories() {
+async function renderCategories() {
   const categoryFilters = document.getElementById('categoryFilters');
   if (!categoryFilters) return;
 
@@ -16,23 +16,23 @@ function renderCategories() {
   const allBtn = document.createElement('button');
   allBtn.className = `category-btn ${currentCategoryId === null ? 'active' : ''}`;
   allBtn.textContent = '전체';
-  allBtn.addEventListener('click', () => {
+  allBtn.addEventListener('click', async () => {
     currentCategoryId = null;
-    renderCategories();
-    renderLinks(null, searchQuery);
+    await renderCategories();
+    await renderLinks(null, searchQuery);
   });
   categoryFilters.appendChild(allBtn);
 
   // 각 카테고리 버튼
-  const categories = getAllCategories();
+  const categories = await getAllCategories();
   categories.forEach(category => {
     const btn = document.createElement('button');
     btn.className = `category-btn ${currentCategoryId === category.id ? 'active' : ''}`;
     btn.textContent = category.name;
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       currentCategoryId = category.id;
-      renderCategories();
-      renderLinks(category.id, searchQuery);
+      await renderCategories();
+      await renderLinks(category.id, searchQuery);
     });
     categoryFilters.appendChild(btn);
   });
@@ -41,23 +41,23 @@ function renderCategories() {
 /**
  * 특정 카테고리의 링크 렌더링
  */
-function renderLinks(categoryId, query = '') {
+async function renderLinks(categoryId, query = '') {
   const linksList = document.getElementById('linksList');
   if (!linksList) return;
 
   // 링크 필터링
   let links;
   if (categoryId) {
-    links = getLinksByCategory(categoryId);
+    links = await getLinksByCategory(categoryId);
   } else {
-    links = getData().links;
+    links = await getAllLinks();
   }
 
   // 검색 필터링
   if (query) {
     links = links.filter(link =>
       link.title.toLowerCase().includes(query) ||
-      link.description.toLowerCase().includes(query)
+      (link.description && link.description.toLowerCase().includes(query))
     );
   }
 
@@ -68,12 +68,12 @@ function renderLinks(categoryId, query = '') {
     return;
   }
 
-  links.forEach(link => {
+  for (const link of links) {
     const linkCard = document.createElement('div');
     linkCard.className = 'link-card';
 
-    const category = getCategory(link.categoryId);
-    const categoryBadge = category ? `<span class="category-badge">${category.name}</span>` : '';
+    const category = await getCategory(link.category_id);
+    const categoryBadge = category ? `<span class="category-badge">${escapeHtml(category.name)}</span>` : '';
 
     let actions = '';
     if (isHostMode) {
@@ -90,19 +90,19 @@ function renderLinks(categoryId, query = '') {
         <h3 class="link-title">${escapeHtml(link.title)}</h3>
         ${actions}
       </div>
-      <p class="link-description">${escapeHtml(link.description)}</p>
+      <p class="link-description">${escapeHtml(link.description || '')}</p>
       <a href="${escapeHtml(link.url)}" target="_blank" class="link-url">🔗 ${escapeHtml(link.url)}</a>
       ${categoryBadge}
     `;
 
     linksList.appendChild(linkCard);
-  });
+  }
 }
 
 /**
  * 호스트 패널 렌더링
  */
-function renderHostPanel() {
+async function renderHostPanel() {
   const hostPanel = document.getElementById('hostPanel');
   if (!hostPanel) return;
 
@@ -117,7 +117,7 @@ function renderHostPanel() {
   if (categoryListHost) {
     categoryListHost.innerHTML = '';
 
-    const categories = getAllCategories();
+    const categories = await getAllCategories();
     categories.forEach(category => {
       const categoryItem = document.createElement('div');
       categoryItem.className = 'category-item-host';
@@ -157,6 +157,7 @@ function closeModal(modalId) {
  * HTML 이스케이프 (XSS 방지)
  */
 function escapeHtml(text) {
+  if (!text) return '';
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
@@ -165,8 +166,8 @@ function escapeHtml(text) {
 /**
  * UI 업데이트 (링크/카테고리 변경 후)
  */
-function updateUI() {
-  renderCategories();
-  renderLinks(currentCategoryId, searchQuery);
-  renderHostPanel();
+async function updateUI() {
+  await renderCategories();
+  await renderLinks(currentCategoryId, searchQuery);
+  await renderHostPanel();
 }

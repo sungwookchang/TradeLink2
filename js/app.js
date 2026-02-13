@@ -12,17 +12,21 @@ let searchQuery = '';
 /**
  * 앱 초기화
  */
-function initializeApp() {
-  // 1. localStorage 초기화
-  initializeData();
+async function initializeApp() {
+  try {
+    // 1. Supabase 초기화
+    await initializeData();
 
-  // 2. 초기 UI 렌더링
-  updateUI();
+    // 2. 초기 UI 렌더링
+    await updateUI();
 
-  // 3. 이벤트 리스너 등록
-  attachEventListeners();
+    // 3. 이벤트 리스너 등록
+    attachEventListeners();
 
-  console.log('TradeLink2 앱이 정상적으로 초기화되었습니다.');
+    console.log('TradeLink2 앱이 정상적으로 초기화되었습니다.');
+  } catch (error) {
+    console.error('앱 초기화 오류:', error);
+  }
 }
 
 /**
@@ -38,9 +42,9 @@ function attachEventListeners() {
   // 검색 입력
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
+    searchInput.addEventListener('input', async (e) => {
       searchQuery = e.target.value.toLowerCase();
-      renderLinks(currentCategoryId, searchQuery);
+      await renderLinks(currentCategoryId, searchQuery);
     });
   }
 
@@ -59,7 +63,7 @@ function attachEventListeners() {
   // 링크 폼 제출
   const linkForm = document.getElementById('linkForm');
   if (linkForm) {
-    linkForm.addEventListener('submit', (e) => {
+    linkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = {
         title: document.getElementById('linkTitle').value,
@@ -69,9 +73,9 @@ function attachEventListeners() {
       };
 
       if (currentEditLinkId) {
-        editLinkHandler(currentEditLinkId, formData);
+        await editLinkHandler(currentEditLinkId, formData);
       } else {
-        addLinkHandler(formData);
+        await addLinkHandler(formData);
       }
     });
   }
@@ -79,7 +83,7 @@ function attachEventListeners() {
   // 카테고리 폼 제출
   const categoryForm = document.getElementById('categoryForm');
   if (categoryForm) {
-    categoryForm.addEventListener('submit', (e) => {
+    categoryForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = {
         name: document.getElementById('categoryName').value,
@@ -87,9 +91,9 @@ function attachEventListeners() {
       };
 
       if (currentEditCategoryId) {
-        editCategoryHandler(currentEditCategoryId, formData);
+        await editCategoryHandler(currentEditCategoryId, formData);
       } else {
-        addCategoryHandler(formData);
+        await addCategoryHandler(formData);
       }
     });
   }
