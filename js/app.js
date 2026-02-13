@@ -86,8 +86,7 @@ function attachEventListeners() {
     categoryForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = {
-        name: document.getElementById('categoryName').value,
-        description: document.getElementById('categoryDescription').value
+        name: document.getElementById('categoryName').value
       };
 
       if (currentEditCategoryId) {

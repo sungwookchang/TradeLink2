@@ -226,7 +226,6 @@ function openEditCategoryForm(categoryId) {
 
   // 폼 데이터 채우기
   document.getElementById('categoryName').value = category.name;
-  document.getElementById('categoryDescription').value = category.description || '';
 
   openModal('categoryModal');
 }

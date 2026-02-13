@@ -9,11 +9,11 @@ const STORAGE_KEY = 'tradeLink_data';
  */
 const initialData = {
   categories: [
-    { id: 1, name: '무역 도우미', description: '무역 관련 도구 및 리소스' },
-    { id: 2, name: 'Trade AI', description: 'AI 기반 무역 솔루션' },
-    { id: 3, name: '뉴스레터', description: '무역 정보 뉴스레터' },
-    { id: 4, name: '상담', description: '전문가 상담 서비스' },
-    { id: 5, name: '보고서', description: '무역 분석 보고서' }
+    { id: 1, name: '무역 도우미' },
+    { id: 2, name: 'Trade AI' },
+    { id: 3, name: '뉴스레터' },
+    { id: 4, name: '상담' },
+    { id: 5, name: '보고서' }
   ],
   links: [
     { id: 1, categoryId: 1, title: '무역업자 전용 커뮤니티', description: '무역업자 네트워킹 플랫폼', url: 'https://example.com/traders' },
@@ -143,8 +143,7 @@ function addCategory(categoryData) {
   const data = getData();
   const newCategory = {
     id: data.nextCategoryId++,
-    name: categoryData.name,
-    description: categoryData.description || null
+    name: categoryData.name
   };
   data.categories.push(newCategory);
   saveData(data);
@@ -159,7 +158,6 @@ function updateCategory(categoryId, newData) {
   const category = data.categories.find(c => c.id === categoryId);
   if (category) {
     category.name = newData.name;
-    category.description = newData.description || null;
     saveData(data);
     return category;
   }
