@@ -6,7 +6,7 @@
 /**
  * 모든 카테고리 렌더링
  */
-async function renderCategories() {
+function renderCategories() {
   const categoryFilters = document.getElementById('categoryFilters');
   if (!categoryFilters) return;
 
@@ -16,23 +16,23 @@ async function renderCategories() {
   const allBtn = document.createElement('button');
   allBtn.className = `category-btn ${currentCategoryId === null ? 'active' : ''}`;
   allBtn.textContent = '전체';
-  allBtn.addEventListener('click', async () => {
+  allBtn.addEventListener('click', () => {
     currentCategoryId = null;
-    await renderCategories();
-    await renderLinks(null, searchQuery);
+    renderCategories();
+    renderLinks(null, searchQuery);
   });
   categoryFilters.appendChild(allBtn);
 
   // 각 카테고리 버튼
-  const categories = await getAllCategories();
+  const categories = getAllCategories();
   categories.forEach(category => {
     const btn = document.createElement('button');
     btn.className = `category-btn ${currentCategoryId === category.id ? 'active' : ''}`;
     btn.textContent = category.name;
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       currentCategoryId = category.id;
-      await renderCategories();
-      await renderLinks(category.id, searchQuery);
+      renderCategories();
+      renderLinks(category.id, searchQuery);
     });
     categoryFilters.appendChild(btn);
   });
@@ -41,16 +41,16 @@ async function renderCategories() {
 /**
  * 특정 카테고리의 링크 렌더링
  */
-async function renderLinks(categoryId, query = '') {
+function renderLinks(categoryId, query = '') {
   const linksList = document.getElementById('linksList');
   if (!linksList) return;
 
   // 링크 필터링
   let links;
   if (categoryId) {
-    links = await getLinksByCategory(categoryId);
+    links = getLinksByCategory(categoryId);
   } else {
-    links = await getAllLinks();
+    links = getAllLinks();
   }
 
   // 검색 필터링
@@ -68,19 +68,19 @@ async function renderLinks(categoryId, query = '') {
     return;
   }
 
-  for (const link of links) {
+  links.forEach(link => {
     const linkCard = document.createElement('div');
     linkCard.className = 'link-card';
 
-    const category = await getCategory(link.category_id);
+    const category = getCategory(link.categoryId);
     const categoryBadge = category ? `<span class="category-badge">${escapeHtml(category.name)}</span>` : '';
 
     let actions = '';
     if (isHostMode) {
       actions = `
         <div class="link-actions">
-          <button class="btn-icon" onclick="openEditLinkForm('${link.id}')" title="수정">✏️</button>
-          <button class="btn-icon" onclick="deleteLinkHandler('${link.id}')" title="삭제">🗑️</button>
+          <button class="btn-icon" onclick="openEditLinkForm(${link.id})" title="수정">✏️</button>
+          <button class="btn-icon" onclick="deleteLinkHandler(${link.id})" title="삭제">🗑️</button>
         </div>
       `;
     }
@@ -96,13 +96,13 @@ async function renderLinks(categoryId, query = '') {
     `;
 
     linksList.appendChild(linkCard);
-  }
+  });
 }
 
 /**
  * 호스트 패널 렌더링
  */
-async function renderHostPanel() {
+function renderHostPanel() {
   const hostPanel = document.getElementById('hostPanel');
   if (!hostPanel) return;
 
@@ -117,15 +117,15 @@ async function renderHostPanel() {
   if (categoryListHost) {
     categoryListHost.innerHTML = '';
 
-    const categories = await getAllCategories();
+    const categories = getAllCategories();
     categories.forEach(category => {
       const categoryItem = document.createElement('div');
       categoryItem.className = 'category-item-host';
       categoryItem.innerHTML = `
         <span class="category-name">${escapeHtml(category.name)}</span>
         <div class="category-actions">
-          <button class="btn-icon" onclick="openEditCategoryForm('${category.id}')" title="수정">✏️</button>
-          <button class="btn-icon" onclick="deleteCategoryHandler('${category.id}')" title="삭제">🗑️</button>
+          <button class="btn-icon" onclick="openEditCategoryForm(${category.id})" title="수정">✏️</button>
+          <button class="btn-icon" onclick="deleteCategoryHandler(${category.id})" title="삭제">🗑️</button>
         </div>
       `;
       categoryListHost.appendChild(categoryItem);
@@ -166,8 +166,8 @@ function escapeHtml(text) {
 /**
  * UI 업데이트 (링크/카테고리 변경 후)
  */
-async function updateUI() {
-  await renderCategories();
-  await renderLinks(currentCategoryId, searchQuery);
-  await renderHostPanel();
+function updateUI() {
+  renderCategories();
+  renderLinks(currentCategoryId, searchQuery);
+  renderHostPanel();
 }

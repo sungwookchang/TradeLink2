@@ -12,18 +12,18 @@ let searchQuery = '';
 /**
  * 앱 초기화
  */
-async function initializeApp() {
+function initializeApp() {
   try {
-    // 1. Supabase 초기화
-    await initializeData();
+    // 1. 초기 데이터 설정
+    initializeData();
 
     // 2. 초기 UI 렌더링
-    await updateUI();
+    updateUI();
 
     // 3. 이벤트 리스너 등록
     attachEventListeners();
 
-    console.log('TradeLink2 앱이 정상적으로 초기화되었습니다.');
+    console.log('✅ TradeLink2 앱이 정상적으로 초기화되었습니다.');
   } catch (error) {
     console.error('앱 초기화 오류:', error);
   }
@@ -42,9 +42,9 @@ function attachEventListeners() {
   // 검색 입력
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
-    searchInput.addEventListener('input', async (e) => {
+    searchInput.addEventListener('input', (e) => {
       searchQuery = e.target.value.toLowerCase();
-      await renderLinks(currentCategoryId, searchQuery);
+      renderLinks(currentCategoryId, searchQuery);
     });
   }
 
@@ -63,7 +63,7 @@ function attachEventListeners() {
   // 링크 폼 제출
   const linkForm = document.getElementById('linkForm');
   if (linkForm) {
-    linkForm.addEventListener('submit', async (e) => {
+    linkForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = {
         title: document.getElementById('linkTitle').value,
@@ -73,9 +73,9 @@ function attachEventListeners() {
       };
 
       if (currentEditLinkId) {
-        await editLinkHandler(currentEditLinkId, formData);
+        editLinkHandler(currentEditLinkId, formData);
       } else {
-        await addLinkHandler(formData);
+        addLinkHandler(formData);
       }
     });
   }
@@ -83,7 +83,7 @@ function attachEventListeners() {
   // 카테고리 폼 제출
   const categoryForm = document.getElementById('categoryForm');
   if (categoryForm) {
-    categoryForm.addEventListener('submit', async (e) => {
+    categoryForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const formData = {
         name: document.getElementById('categoryName').value,
@@ -91,9 +91,9 @@ function attachEventListeners() {
       };
 
       if (currentEditCategoryId) {
-        await editCategoryHandler(currentEditCategoryId, formData);
+        editCategoryHandler(currentEditCategoryId, formData);
       } else {
-        await addCategoryHandler(formData);
+        addCategoryHandler(formData);
       }
     });
   }

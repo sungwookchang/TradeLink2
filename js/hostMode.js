@@ -8,7 +8,7 @@ let isHostMode = false;
 /**
  * 호스트 모드 토글
  */
-async function toggleHostMode() {
+function toggleHostMode() {
   isHostMode = !isHostMode;
 
   const hostModeToggle = document.getElementById('hostModeToggle');
@@ -16,7 +16,7 @@ async function toggleHostMode() {
     hostModeToggle.textContent = isHostMode ? '🔓' : '🔒';
   }
 
-  await updateUI();
+  updateUI();
 }
 
 /**
@@ -31,7 +31,7 @@ function getHostMode() {
 /**
  * 링크 추가 폼 열기
  */
-async function openAddLinkForm() {
+function openAddLinkForm() {
   if (!isHostMode) return;
 
   currentEditLinkId = null;
@@ -52,7 +52,7 @@ async function openAddLinkForm() {
   const linkCategory = document.getElementById('linkCategory');
   if (linkCategory) {
     linkCategory.innerHTML = '<option value="">-- 카테고리 선택 --</option>';
-    const categories = await getAllCategories();
+    const categories = getAllCategories();
     categories.forEach(category => {
       const option = document.createElement('option');
       option.value = category.id;
@@ -67,18 +67,17 @@ async function openAddLinkForm() {
 /**
  * 링크 추가 처리
  */
-async function addLinkHandler(formData) {
+function addLinkHandler(formData) {
   try {
-    // categoryId가 없으면 null로 설정
-    const categoryId = formData.categoryId || null;
+    const categoryId = formData.categoryId ? parseInt(formData.categoryId) : null;
 
-    await addLink(categoryId, {
+    addLink(categoryId, {
       title: formData.title,
       description: formData.description,
       url: formData.url
     });
 
-    await updateUI();
+    updateUI();
     closeModal('linkModal');
   } catch (error) {
     console.error('링크 추가 오류:', error);
@@ -89,11 +88,11 @@ async function addLinkHandler(formData) {
 /**
  * 링크 편집 폼 열기
  */
-async function openEditLinkForm(linkId) {
+function openEditLinkForm(linkId) {
   if (!isHostMode) return;
 
   currentEditLinkId = linkId;
-  const link = await getLink(linkId);
+  const link = getLink(linkId);
 
   if (!link) return;
 
@@ -112,12 +111,12 @@ async function openEditLinkForm(linkId) {
   const linkCategory = document.getElementById('linkCategory');
   if (linkCategory) {
     linkCategory.innerHTML = '<option value="">-- 카테고리 선택 --</option>';
-    const categories = await getAllCategories();
+    const categories = getAllCategories();
     categories.forEach(category => {
       const option = document.createElement('option');
       option.value = category.id;
       option.textContent = category.name;
-      if (category.id === link.category_id) {
+      if (category.id === link.categoryId) {
         option.selected = true;
       }
       linkCategory.appendChild(option);
@@ -130,18 +129,18 @@ async function openEditLinkForm(linkId) {
 /**
  * 링크 수정 처리
  */
-async function editLinkHandler(linkId, newData) {
+function editLinkHandler(linkId, newData) {
   try {
-    const categoryId = newData.categoryId || null;
+    const categoryId = newData.categoryId ? parseInt(newData.categoryId) : null;
 
-    await updateLink(linkId, {
+    updateLink(linkId, {
       title: newData.title,
       description: newData.description,
       url: newData.url,
-      category_id: categoryId
+      categoryId: categoryId
     });
 
-    await updateUI();
+    updateUI();
     closeModal('linkModal');
   } catch (error) {
     console.error('링크 수정 오류:', error);
@@ -152,12 +151,12 @@ async function editLinkHandler(linkId, newData) {
 /**
  * 링크 삭제 처리
  */
-async function deleteLinkHandler(linkId) {
+function deleteLinkHandler(linkId) {
   if (!isHostMode) return;
 
   if (confirm('이 링크를 삭제하시겠습니까?')) {
-    await deleteLink(linkId);
-    await updateUI();
+    deleteLink(linkId);
+    updateUI();
   }
 }
 
@@ -189,9 +188,9 @@ function openAddCategoryForm() {
 /**
  * 카테고리 추가 처리
  */
-async function addCategoryHandler(categoryData) {
+function addCategoryHandler(categoryData) {
   try {
-    const result = await addCategory({
+    const result = addCategory({
       name: categoryData.name,
       description: categoryData.description
     });
@@ -200,7 +199,7 @@ async function addCategoryHandler(categoryData) {
       throw new Error('카테고리 추가에 실패했습니다');
     }
 
-    await updateUI();
+    updateUI();
     closeModal('categoryModal');
   } catch (error) {
     console.error('카테고리 추가 오류:', error);
@@ -211,11 +210,11 @@ async function addCategoryHandler(categoryData) {
 /**
  * 카테고리 편집 폼 열기
  */
-async function openEditCategoryForm(categoryId) {
+function openEditCategoryForm(categoryId) {
   if (!isHostMode) return;
 
   currentEditCategoryId = categoryId;
-  const category = await getCategory(categoryId);
+  const category = getCategory(categoryId);
 
   if (!category) return;
 
@@ -235,15 +234,15 @@ async function openEditCategoryForm(categoryId) {
 /**
  * 카테고리 수정 처리
  */
-async function editCategoryHandler(categoryId, newData) {
+function editCategoryHandler(categoryId, newData) {
   try {
-    const result = await updateCategory(categoryId, newData);
+    const result = updateCategory(categoryId, newData);
 
     if (!result) {
       throw new Error('카테고리 수정에 실패했습니다');
     }
 
-    await updateUI();
+    updateUI();
     closeModal('categoryModal');
   } catch (error) {
     console.error('카테고리 수정 오류:', error);
@@ -254,12 +253,12 @@ async function editCategoryHandler(categoryId, newData) {
 /**
  * 카테고리 삭제 처리
  */
-async function deleteCategoryHandler(categoryId) {
+function deleteCategoryHandler(categoryId) {
   if (!isHostMode) return;
 
   if (confirm('이 카테고리를 삭제하시겠습니까? 해당 카테고리의 모든 링크도 함께 삭제됩니다.')) {
-    await deleteCategory(categoryId);
-    currentCategoryId = null;  // 삭제된 카테고리를 보고 있었다면 전체 보기로 변경
-    await updateUI();
+    deleteCategory(categoryId);
+    currentCategoryId = null;
+    updateUI();
   }
 }
