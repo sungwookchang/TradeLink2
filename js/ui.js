@@ -86,8 +86,8 @@ async function renderLinks(categoryId, query = '') {
     if (isHostMode) {
       actions = `
         <div class="link-actions">
-          <button class="btn-icon" onclick="openEditLinkForm('${link.id}')" title="수정">✏️</button>
-          <button class="btn-icon" onclick="deleteLinkHandler('${link.id}')" title="삭제">🗑️</button>
+          <button class="btn-icon" onclick="editLinkWrapper('${link.id}')" title="수정">✎</button>
+          <button class="btn-icon" onclick="deleteLinkWrapper('${link.id}')" title="삭제">✕</button>
         </div>
       `;
     }
@@ -147,8 +147,8 @@ async function renderHostPanel() {
         <span class="category-name">${escapeHtml(category.name)}</span>
         <div class="category-actions">
           ${orderButtons}
-          <button class="btn-icon" onclick="openEditCategoryForm('${category.id}')" title="수정">✏️</button>
-          <button class="btn-icon" onclick="deleteCategoryHandler('${category.id}')" title="삭제">🗑️</button>
+          <button class="btn-icon" onclick="editCategoryWrapper('${category.id}')" title="수정">✎</button>
+          <button class="btn-icon" onclick="deleteCategoryWrapper('${category.id}')" title="삭제">✕</button>
         </div>
       `;
       categoryListHost.appendChild(categoryItem);

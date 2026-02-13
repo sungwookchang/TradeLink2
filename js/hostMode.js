@@ -282,3 +282,39 @@ async function reorderCategoryHandler(categoryId, direction) {
     updateUI();
   }
 }
+
+/**
+ * 링크 편집 폼 열기 (동기 래퍼)
+ */
+function editLinkWrapper(linkId) {
+  openEditLinkForm(linkId).catch(error => {
+    console.error('링크 편집 폼 열기 오류:', error);
+  });
+}
+
+/**
+ * 링크 삭제 처리 (동기 래퍼)
+ */
+function deleteLinkWrapper(linkId) {
+  deleteLinkHandler(linkId).catch(error => {
+    console.error('링크 삭제 오류:', error);
+  });
+}
+
+/**
+ * 카테고리 편집 폼 열기 (동기 래퍼)
+ */
+function editCategoryWrapper(categoryId) {
+  openEditCategoryForm(categoryId).catch(error => {
+    console.error('카테고리 편집 폼 열기 오류:', error);
+  });
+}
+
+/**
+ * 카테고리 삭제 처리 (동기 래퍼)
+ */
+function deleteCategoryWrapper(categoryId) {
+  deleteCategoryHandler(categoryId).catch(error => {
+    console.error('카테고리 삭제 오류:', error);
+  });
+}
