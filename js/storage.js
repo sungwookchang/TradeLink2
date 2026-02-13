@@ -34,12 +34,15 @@ async function waitForSupabase() {
   return new Promise((resolve, reject) => {
     let attempts = 0;
     const checkInterval = setInterval(() => {
-      if (supabase && supabase.from) {
+      console.log(`Supabase 준비 확인 (${attempts}회)...`, { supabase: !!supabase, hasFrom: supabase && !!supabase.from });
+
+      if (supabase && typeof supabase.from === 'function') {
         clearInterval(checkInterval);
         console.log('✅ Supabase 준비 완료');
         resolve();
-      } else if (attempts > 50) {
+      } else if (attempts > 100) {
         clearInterval(checkInterval);
+        console.error('❌ Supabase 초기화 실패 (타임아웃 10초)');
         reject(new Error('Supabase 초기화 실패 (타임아웃)'));
       }
       attempts++;
