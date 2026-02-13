@@ -1,61 +1,45 @@
 /**
- * localStorage를 사용한 데이터 관리
+ * Supabase를 사용한 데이터 관리
+ * RESTful API를 통한 CRUD 작업
  */
 
-const STORAGE_KEY = 'tradeLink_data';
-
-/**
- * 초기 데이터
- */
-const initialData = {
-  categories: [
-    { id: 1, name: '무역 도우미' },
-    { id: 2, name: 'Trade AI' },
-    { id: 3, name: '뉴스레터' },
-    { id: 4, name: '상담' },
-    { id: 5, name: '보고서' }
-  ],
-  links: [
-    { id: 1, categoryId: 1, title: '무역업자 전용 커뮤니티', description: '무역업자 네트워킹 플랫폼', url: 'https://example.com/traders' },
-    { id: 2, categoryId: 2, title: '자동 가격 분석 AI', description: '실시간 가격 분석 도구', url: 'https://example.com/ai-price' },
-    { id: 3, categoryId: 2, title: '수출 예측 모델', description: 'ML 기반 수출량 예측', url: 'https://example.com/export-forecast' },
-    { id: 4, categoryId: 3, title: '주간 무역 뉴스', description: '매주 업데이트되는 무역 뉴스', url: 'https://example.com/weekly-news' },
-    { id: 5, categoryId: 4, title: '관세 상담 예약', description: '전문가와의 상담 예약 시스템', url: 'https://example.com/tariff-consultation' },
-    { id: 6, categoryId: 5, title: '월별 무역 현황', description: '최신 무역 통계 보고서', url: 'https://example.com/monthly-report' },
-    { id: 7, categoryId: 1, title: '통관 자동화 시스템', description: '통관 서류 자동 처리', url: 'https://example.com/customs-auto' },
-    { id: 8, categoryId: 3, title: '월별 관세 정보', description: '관세 변동 정보', url: 'https://example.com/tariff-info' },
-    { id: 9, categoryId: 5, title: 'FTA 분석 보고서', description: 'FTA 협상 분석', url: 'https://example.com/fta-analysis' }
-  ]
-};
+const SUPABASE_URL = 'https://zfiwdbehmsdjnmflumfn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_R8bdG2HpEuXT4Uj31eMRbQ_qWcTUxlH';
 
 /**
- * localStorage에서 데이터 조회
+ * Supabase API 호출 헬퍼
  */
-function getData() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : null;
-}
+async function supabaseRequest(path, options = {}) {
+  const url = `${SUPABASE_URL}/rest/v1${path}`;
 
-/**
- * localStorage에 데이터 저장
- */
-function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    ...options.headers
+  };
 
-/**
- * 초기 데이터 설정 (첫 로드 시만)
- */
-function initializeData() {
-  const existingData = getData();
-  if (!existingData) {
-    saveData({
-      categories: JSON.parse(JSON.stringify(initialData.categories)),
-      links: JSON.parse(JSON.stringify(initialData.links)),
-      nextCategoryId: 6,
-      nextLinkId: 10
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers
     });
-    console.log('✅ 초기 데이터 설정 완료');
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`HTTP ${response.status}: ${error}`);
+    }
+
+    // DELETE 요청은 응답이 없을 수 있음
+    if (options.method === 'DELETE') {
+      return [];
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : [];
+  } catch (error) {
+    console.error('Supabase API 오류:', error);
+    throw error;
   }
 }
 
@@ -64,74 +48,75 @@ function initializeData() {
 /**
  * 링크 추가
  */
-function addLink(categoryId, linkData) {
-  const data = getData();
-  const newLink = {
-    id: data.nextLinkId++,
-    categoryId: categoryId || null,
+async function addLink(categoryId, linkData) {
+  const payload = {
     title: linkData.title,
     description: linkData.description || null,
-    url: linkData.url
+    url: linkData.url,
+    category_id: categoryId || null
   };
-  data.links.push(newLink);
-  saveData(data);
-  return newLink;
+
+  const result = await supabaseRequest('/links', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+
+  return result[0] || result;
 }
 
 /**
  * 링크 수정
  */
-function updateLink(linkId, newData) {
-  const data = getData();
-  const link = data.links.find(l => l.id === linkId);
-  if (link) {
-    link.title = newData.title;
-    link.description = newData.description || null;
-    link.url = newData.url;
-    link.categoryId = newData.categoryId || null;
-    saveData(data);
-    return link;
-  }
-  return null;
+async function updateLink(linkId, newData) {
+  const payload = {
+    title: newData.title,
+    description: newData.description || null,
+    url: newData.url,
+    category_id: newData.categoryId || null
+  };
+
+  const result = await supabaseRequest(`/links?id=eq.${linkId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  });
+
+  return result[0] || result;
 }
 
 /**
  * 링크 삭제
  */
-function deleteLink(linkId) {
-  const data = getData();
-  const index = data.links.findIndex(l => l.id === linkId);
-  if (index !== -1) {
-    data.links.splice(index, 1);
-    saveData(data);
-    return true;
-  }
-  return false;
+async function deleteLink(linkId) {
+  await supabaseRequest(`/links?id=eq.${linkId}`, {
+    method: 'DELETE'
+  });
+  return true;
 }
 
 /**
  * 특정 카테고리의 링크 조회
  */
-function getLinksByCategory(categoryId) {
-  const data = getData();
-  if (!categoryId) return data.links;
-  return data.links.filter(l => l.categoryId === categoryId);
+async function getLinksByCategory(categoryId) {
+  if (!categoryId) return getAllLinks();
+
+  const links = await supabaseRequest(`/links?category_id=eq.${categoryId}`);
+  return links;
 }
 
 /**
  * 모든 링크 조회
  */
-function getAllLinks() {
-  const data = getData();
-  return data.links;
+async function getAllLinks() {
+  const links = await supabaseRequest('/links?order=created_at.desc');
+  return links;
 }
 
 /**
  * 특정 링크 조회
  */
-function getLink(linkId) {
-  const data = getData();
-  return data.links.find(l => l.id === linkId) || null;
+async function getLink(linkId) {
+  const links = await supabaseRequest(`/links?id=eq.${linkId}`);
+  return links[0] || null;
 }
 
 // ===== 카테고리 관련 함수 =====
@@ -139,85 +124,130 @@ function getLink(linkId) {
 /**
  * 카테고리 추가
  */
-function addCategory(categoryData) {
-  const data = getData();
-  const newCategory = {
-    id: data.nextCategoryId++,
-    name: categoryData.name
+async function addCategory(categoryData) {
+  const payload = {
+    name: categoryData.name,
+    description: categoryData.description || null
   };
-  data.categories.push(newCategory);
-  saveData(data);
-  return newCategory;
+
+  const result = await supabaseRequest('/categories', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  });
+
+  return result[0] || result;
 }
 
 /**
  * 카테고리 수정
  */
-function updateCategory(categoryId, newData) {
-  const data = getData();
-  const category = data.categories.find(c => c.id === categoryId);
-  if (category) {
-    category.name = newData.name;
-    saveData(data);
-    return category;
-  }
-  return null;
+async function updateCategory(categoryId, newData) {
+  const payload = {
+    name: newData.name,
+    description: newData.description || null
+  };
+
+  const result = await supabaseRequest(`/categories?id=eq.${categoryId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  });
+
+  return result[0] || result;
 }
 
 /**
  * 카테고리 삭제 (연관된 링크도 삭제)
  */
-function deleteCategory(categoryId) {
-  const data = getData();
-  const index = data.categories.findIndex(c => c.id === categoryId);
-  if (index !== -1) {
-    data.categories.splice(index, 1);
-    // 연관된 링크 삭제
-    data.links = data.links.filter(l => l.categoryId !== categoryId);
-    saveData(data);
-    return true;
-  }
-  return false;
+async function deleteCategory(categoryId) {
+  // 먼저 연관된 모든 링크 삭제
+  await supabaseRequest(`/links?category_id=eq.${categoryId}`, {
+    method: 'DELETE'
+  });
+
+  // 그 다음 카테고리 삭제
+  await supabaseRequest(`/categories?id=eq.${categoryId}`, {
+    method: 'DELETE'
+  });
+
+  return true;
 }
 
 /**
  * 특정 카테고리 조회
  */
-function getCategory(categoryId) {
-  const data = getData();
-  return data.categories.find(c => c.id === categoryId) || null;
+async function getCategory(categoryId) {
+  if (!categoryId) return null;
+
+  const categories = await supabaseRequest(`/categories?id=eq.${categoryId}`);
+  return categories[0] || null;
 }
 
 /**
  * 모든 카테고리 조회
  */
-function getAllCategories() {
-  const data = getData();
-  return data.categories;
+async function getAllCategories() {
+  const categories = await supabaseRequest('/categories?order=created_at.asc');
+  return categories;
 }
 
 /**
- * 카테고리 순서 변경
+ * 카테고리 순서 변경 (위치 업데이트)
+ * 주의: Supabase에서는 순서를 저장할 별도 필드가 필요함
+ * 현재는 created_at 기준으로 정렬되므로, 실제 순서 변경을 위해서는 position 필드 추가 필요
  */
-function reorderCategory(categoryId, direction) {
-  const data = getData();
-  const index = data.categories.findIndex(c => c.id === categoryId);
-
-  if (index === -1) return false;
-
-  if (direction === 'up' && index > 0) {
-    // 위로 이동
-    [data.categories[index], data.categories[index - 1]] =
-    [data.categories[index - 1], data.categories[index]];
-    saveData(data);
-    return true;
-  } else if (direction === 'down' && index < data.categories.length - 1) {
-    // 아래로 이동
-    [data.categories[index], data.categories[index + 1]] =
-    [data.categories[index + 1], data.categories[index]];
-    saveData(data);
-    return true;
-  }
-
+async function reorderCategory(categoryId, direction) {
+  // Supabase에서는 order 필드가 없으므로 created_at을 조정
+  // 또는 position 필드를 추가해야 함
+  // 임시 해결책: 클라이언트에서만 정렬
+  console.warn('⚠️ Supabase에서 카테고리 순서 변경은 클라이언트 측에서 처리해야 합니다.');
   return false;
+}
+
+/**
+ * 초기 데이터 설정
+ */
+async function initializeData() {
+  try {
+    const categories = await getAllCategories();
+
+    // 이미 데이터가 있으면 초기화 스킵
+    if (categories.length > 0) {
+      console.log('✅ 기존 데이터 로드 완료');
+      return;
+    }
+
+    // 초기 카테고리 추가
+    const categoryNames = ['무역 도우미', 'Trade AI', '뉴스레터', '상담', '보고서'];
+    let categoryMap = {};
+
+    for (const name of categoryNames) {
+      const category = await addCategory({ name });
+      categoryMap[name] = category.id;
+    }
+
+    // 초기 링크 추가
+    const initialLinks = [
+      { categoryId: categoryMap['무역 도우미'], title: '무역업자 전용 커뮤니티', description: '무역업자 네트워킹 플랫폼', url: 'https://example.com/traders' },
+      { categoryId: categoryMap['Trade AI'], title: '자동 가격 분석 AI', description: '실시간 가격 분석 도구', url: 'https://example.com/ai-price' },
+      { categoryId: categoryMap['Trade AI'], title: '수출 예측 모델', description: 'ML 기반 수출량 예측', url: 'https://example.com/export-forecast' },
+      { categoryId: categoryMap['뉴스레터'], title: '주간 무역 뉴스', description: '매주 업데이트되는 무역 뉴스', url: 'https://example.com/weekly-news' },
+      { categoryId: categoryMap['상담'], title: '관세 상담 예약', description: '전문가와의 상담 예약 시스템', url: 'https://example.com/tariff-consultation' },
+      { categoryId: categoryMap['보고서'], title: '월별 무역 현황', description: '최신 무역 통계 보고서', url: 'https://example.com/monthly-report' },
+      { categoryId: categoryMap['무역 도우미'], title: '통관 자동화 시스템', description: '통관 서류 자동 처리', url: 'https://example.com/customs-auto' },
+      { categoryId: categoryMap['뉴스레터'], title: '월별 관세 정보', description: '관세 변동 정보', url: 'https://example.com/tariff-info' },
+      { categoryId: categoryMap['보고서'], title: 'FTA 분석 보고서', description: 'FTA 협상 분석', url: 'https://example.com/fta-analysis' }
+    ];
+
+    for (const link of initialLinks) {
+      await addLink(link.categoryId, {
+        title: link.title,
+        description: link.description,
+        url: link.url
+      });
+    }
+
+    console.log('✅ 초기 데이터 설정 완료');
+  } catch (error) {
+    console.error('초기 데이터 설정 오류:', error);
+  }
 }

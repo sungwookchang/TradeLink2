@@ -12,13 +12,13 @@ let searchQuery = '';
 /**
  * 앱 초기화
  */
-function initializeApp() {
+async function initializeApp() {
   try {
     // 1. 초기 데이터 설정
-    initializeData();
+    await initializeData();
 
     // 2. 초기 UI 렌더링
-    updateUI();
+    await updateUI();
 
     // 3. 이벤트 리스너 등록
     attachEventListeners();
@@ -42,9 +42,9 @@ function attachEventListeners() {
   // 검색 입력
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
+    searchInput.addEventListener('input', async (e) => {
       searchQuery = e.target.value.toLowerCase();
-      renderLinks(currentCategoryId, searchQuery);
+      await renderLinks(currentCategoryId, searchQuery);
     });
   }
 
@@ -63,7 +63,7 @@ function attachEventListeners() {
   // 링크 폼 제출
   const linkForm = document.getElementById('linkForm');
   if (linkForm) {
-    linkForm.addEventListener('submit', (e) => {
+    linkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = {
         title: document.getElementById('linkTitle').value,
@@ -73,9 +73,9 @@ function attachEventListeners() {
       };
 
       if (currentEditLinkId) {
-        editLinkHandler(currentEditLinkId, formData);
+        await editLinkHandler(currentEditLinkId, formData);
       } else {
-        addLinkHandler(formData);
+        await addLinkHandler(formData);
       }
     });
   }
@@ -83,16 +83,16 @@ function attachEventListeners() {
   // 카테고리 폼 제출
   const categoryForm = document.getElementById('categoryForm');
   if (categoryForm) {
-    categoryForm.addEventListener('submit', (e) => {
+    categoryForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const formData = {
         name: document.getElementById('categoryName').value
       };
 
       if (currentEditCategoryId) {
-        editCategoryHandler(currentEditCategoryId, formData);
+        await editCategoryHandler(currentEditCategoryId, formData);
       } else {
-        addCategoryHandler(formData);
+        await addCategoryHandler(formData);
       }
     });
   }
