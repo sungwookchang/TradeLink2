@@ -82,21 +82,27 @@ async function initializeData() {
  */
 async function addLink(categoryId, linkData) {
   try {
+    const insertData = {
+      title: linkData.title,
+      description: linkData.description || null,
+      url: linkData.url
+    };
+
+    // categoryId가 있으면 추가
+    if (categoryId) {
+      insertData.category_id = categoryId;
+    }
+
     const { data, error } = await supabase
       .from('links')
-      .insert({
-        category_id: categoryId,
-        title: linkData.title,
-        description: linkData.description,
-        url: linkData.url
-      })
+      .insert(insertData)
       .select();
 
     if (error) throw error;
     return data[0];
   } catch (error) {
     console.error('링크 추가 오류:', error);
-    return null;
+    throw error;
   }
 }
 
@@ -105,14 +111,16 @@ async function addLink(categoryId, linkData) {
  */
 async function updateLink(linkId, newData) {
   try {
+    const updateData = {
+      title: newData.title,
+      description: newData.description || null,
+      url: newData.url,
+      category_id: newData.categoryId || newData.category_id || null
+    };
+
     const { data, error } = await supabase
       .from('links')
-      .update({
-        title: newData.title,
-        description: newData.description,
-        url: newData.url,
-        category_id: newData.categoryId || newData.category_id
-      })
+      .update(updateData)
       .eq('id', linkId)
       .select();
 
@@ -120,7 +128,7 @@ async function updateLink(linkId, newData) {
     return data[0];
   } catch (error) {
     console.error('링크 수정 오류:', error);
-    return null;
+    throw error;
   }
 }
 

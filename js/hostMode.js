@@ -51,7 +51,7 @@ async function openAddLinkForm() {
   // 카테고리 드롭다운 채우기
   const linkCategory = document.getElementById('linkCategory');
   if (linkCategory) {
-    linkCategory.innerHTML = '';
+    linkCategory.innerHTML = '<option value="">-- 카테고리 선택 --</option>';
     const categories = await getAllCategories();
     categories.forEach(category => {
       const option = document.createElement('option');
@@ -68,14 +68,22 @@ async function openAddLinkForm() {
  * 링크 추가 처리
  */
 async function addLinkHandler(formData) {
-  await addLink(formData.categoryId, {
-    title: formData.title,
-    description: formData.description,
-    url: formData.url
-  });
+  try {
+    // categoryId가 없으면 null로 설정
+    const categoryId = formData.categoryId || null;
 
-  await updateUI();
-  closeModal('linkModal');
+    await addLink(categoryId, {
+      title: formData.title,
+      description: formData.description,
+      url: formData.url
+    });
+
+    await updateUI();
+    closeModal('linkModal');
+  } catch (error) {
+    console.error('링크 추가 오류:', error);
+    alert('링크 추가에 실패했습니다: ' + error.message);
+  }
 }
 
 /**
@@ -103,7 +111,7 @@ async function openEditLinkForm(linkId) {
   // 카테고리 드롭다운 채우기 및 선택
   const linkCategory = document.getElementById('linkCategory');
   if (linkCategory) {
-    linkCategory.innerHTML = '';
+    linkCategory.innerHTML = '<option value="">-- 카테고리 선택 --</option>';
     const categories = await getAllCategories();
     categories.forEach(category => {
       const option = document.createElement('option');
@@ -123,15 +131,22 @@ async function openEditLinkForm(linkId) {
  * 링크 수정 처리
  */
 async function editLinkHandler(linkId, newData) {
-  await updateLink(linkId, {
-    title: newData.title,
-    description: newData.description,
-    url: newData.url,
-    category_id: newData.categoryId
-  });
+  try {
+    const categoryId = newData.categoryId || null;
 
-  await updateUI();
-  closeModal('linkModal');
+    await updateLink(linkId, {
+      title: newData.title,
+      description: newData.description,
+      url: newData.url,
+      category_id: categoryId
+    });
+
+    await updateUI();
+    closeModal('linkModal');
+  } catch (error) {
+    console.error('링크 수정 오류:', error);
+    alert('링크 수정에 실패했습니다: ' + error.message);
+  }
 }
 
 /**
@@ -175,13 +190,22 @@ function openAddCategoryForm() {
  * 카테고리 추가 처리
  */
 async function addCategoryHandler(categoryData) {
-  await addCategory({
-    name: categoryData.name,
-    description: categoryData.description
-  });
+  try {
+    const result = await addCategory({
+      name: categoryData.name,
+      description: categoryData.description
+    });
 
-  await updateUI();
-  closeModal('categoryModal');
+    if (!result) {
+      throw new Error('카테고리 추가에 실패했습니다');
+    }
+
+    await updateUI();
+    closeModal('categoryModal');
+  } catch (error) {
+    console.error('카테고리 추가 오류:', error);
+    alert('카테고리 추가에 실패했습니다: ' + error.message);
+  }
 }
 
 /**
@@ -212,10 +236,19 @@ async function openEditCategoryForm(categoryId) {
  * 카테고리 수정 처리
  */
 async function editCategoryHandler(categoryId, newData) {
-  await updateCategory(categoryId, newData);
+  try {
+    const result = await updateCategory(categoryId, newData);
 
-  await updateUI();
-  closeModal('categoryModal');
+    if (!result) {
+      throw new Error('카테고리 수정에 실패했습니다');
+    }
+
+    await updateUI();
+    closeModal('categoryModal');
+  } catch (error) {
+    console.error('카테고리 수정 오류:', error);
+    alert('카테고리 수정에 실패했습니다: ' + error.message);
+  }
 }
 
 /**
