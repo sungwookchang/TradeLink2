@@ -118,7 +118,7 @@
     </div>
 
     <!-- Supabase 클라이언트 라이브러리 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- 스크립트 -->
     <script src="js/config.js"></script>
@@ -126,5 +126,20 @@
     <script src="js/ui.js"></script>
     <script src="js/hostMode.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- Supabase 초기화 보장 -->
+    <script>
+      // 페이지 로드 후 최대 3초간 Supabase 초기화 대기
+      let attempts = 0;
+      const waitForSupabase = setInterval(() => {
+        if (supabase || attempts > 30) {
+          clearInterval(waitForSupabase);
+          if (!supabase) {
+            console.error('⚠️ Supabase 초기화 실패. 페이지를 새로고침하세요.');
+          }
+        }
+        attempts++;
+      }, 100);
+    </script>
 </body>
 </html>

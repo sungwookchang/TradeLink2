@@ -28,10 +28,35 @@ const initialData = {
 };
 
 /**
+ * Supabase가 초기화될 때까지 대기
+ */
+async function waitForSupabase() {
+  return new Promise((resolve, reject) => {
+    let attempts = 0;
+    const checkInterval = setInterval(() => {
+      if (supabase && supabase.from) {
+        clearInterval(checkInterval);
+        console.log('✅ Supabase 준비 완료');
+        resolve();
+      } else if (attempts > 50) {
+        clearInterval(checkInterval);
+        reject(new Error('Supabase 초기화 실패 (타임아웃)'));
+      }
+      attempts++;
+    }, 100);
+  });
+}
+
+/**
  * 초기 데이터 로드 (첫 로드 시만)
  */
 async function initializeData() {
   try {
+    // Supabase가 준비될 때까지 대기
+    await waitForSupabase();
+
+    console.log('초기 데이터 확인 중...');
+
     // 카테고리 확인
     const { data: categories, error: catError } = await supabase
       .from('categories')
@@ -82,6 +107,11 @@ async function initializeData() {
  */
 async function addLink(categoryId, linkData) {
   try {
+    // Supabase 준비 확인
+    if (!supabase || !supabase.from) {
+      throw new Error('Supabase가 초기화되지 않았습니다. 페이지를 새로고침하세요.');
+    }
+
     const insertData = {
       title: linkData.title,
       description: linkData.description || null,
@@ -174,6 +204,10 @@ async function getLinksByCategory(categoryId) {
  */
 async function getAllLinks() {
   try {
+    if (!supabase || !supabase.from) {
+      throw new Error('Supabase가 초기화되지 않았습니다.');
+    }
+
     const { data, error } = await supabase
       .from('links')
       .select('*')
@@ -213,6 +247,11 @@ async function getLink(linkId) {
  */
 async function addCategory(categoryData) {
   try {
+    // Supabase 준비 확인
+    if (!supabase || !supabase.from) {
+      throw new Error('Supabase가 초기화되지 않았습니다. 페이지를 새로고침하세요.');
+    }
+
     console.log('카테고리 추가 시도:', categoryData);
 
     const { data, error } = await supabase
@@ -306,6 +345,10 @@ async function getCategory(categoryId) {
  */
 async function getAllCategories() {
   try {
+    if (!supabase || !supabase.from) {
+      throw new Error('Supabase가 초기화되지 않았습니다.');
+    }
+
     const { data, error } = await supabase
       .from('categories')
       .select('*')
