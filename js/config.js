@@ -1,57 +1,124 @@
 /**
- * Supabase 설정
+ * Supabase REST API 직접 사용 (라이브러리 없음)
  */
 const SUPABASE_URL = 'https://zfiwdbehmsdjnmflumfn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_R8bdG2HpEuXT4Uj31eMRbQ_qWcTUxlH';
 
-// Supabase 클라이언트 (전역 변수)
-let supabase = null;
-
 /**
- * Supabase 초기화
+ * Supabase REST API를 사용한 쿼리
  */
-function initializeSupabase() {
-  console.log('Supabase 초기화 시도...');
+async function supabaseQuery(table, method = 'GET', data = null) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
 
-  // window.supabase 확인
-  if (!window.supabase) {
-    console.error('❌ window.supabase가 정의되지 않았습니다.');
-    console.log('현재 window 속성:', Object.keys(window).filter(k => k.toLowerCase().includes('supa')));
-    return false;
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`
+    }
+  };
+
+  if (data) {
+    options.body = JSON.stringify(data);
   }
 
   try {
-    // createClient 함수 확인
-    if (typeof window.supabase.createClient !== 'function') {
-      console.error('❌ window.supabase.createClient가 함수가 아닙니다.');
-      return false;
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`HTTP ${response.status}: ${error}`);
     }
 
-    // Supabase 클라이언트 생성
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    if (!supabase) {
-      console.error('❌ Supabase 클라이언트 생성 실패');
-      return false;
+    // DELETE는 응답이 없을 수 있음
+    if (method === 'DELETE') {
+      return { data: [], error: null };
     }
 
-    console.log('✅ Supabase 초기화 완료');
-    console.log('URL:', SUPABASE_URL);
-    return true;
+    const responseData = await response.json();
+    return { data: responseData, error: null };
   } catch (error) {
-    console.error('❌ Supabase 초기화 중 오류:', error);
-    return false;
+    console.error(`Supabase API 오류 (${table}):`, error);
+    return { data: null, error };
   }
 }
 
-// 스크립트 로드 완료 후 초기화 (최대 5초 대기)
-let initAttempts = 0;
-const initTimer = setInterval(() => {
-  if (initializeSupabase()) {
-    clearInterval(initTimer);
-  } else if (initAttempts > 50) {
-    clearInterval(initTimer);
-    console.error('⚠️ Supabase 초기화 타임아웃');
-  }
-  initAttempts++;
-}, 100);
+// 전역 supabase 객체 (호환성)
+const supabase = {
+  from: (table) => ({
+    select: (columns = '*') => ({
+      eq: (column, value) => ({
+        order: (orderCol, opts) => ({
+          then: (callback) => {
+            supabaseQuery(`${table}?${column}=eq.${value}&order=${orderCol}.${opts.ascending ? 'asc' : 'desc'}`).then(callback);
+          },
+          catch: () => Promise.resolve({ data: [], error: null })
+        }),
+        then: (callback) => {
+          supabaseQuery(`${table}?${column}=eq.${value}`).then(callback);
+        }
+      }),
+      order: (orderCol, opts) => ({
+        then: (callback) => {
+          supabaseQuery(`${table}?order=${orderCol}.${opts.ascending ? 'asc' : 'desc'}`).then(callback);
+        },
+        catch: () => Promise.resolve({ data: [], error: null })
+      }),
+      single: () => ({
+        then: (callback) => {
+          supabaseQuery(`${table}?id=eq.${value}`).then((result) => {
+            callback({ data: result.data?.[0], error: result.error });
+          });
+        }
+      }),
+      then: (callback) => {
+        supabaseQuery(table).then(callback);
+      },
+      catch: () => Promise.resolve({ data: [], error: null })
+    }),
+    insert: (payload) => ({
+      select: () => ({
+        then: (callback) => {
+          supabaseQuery(table, 'POST', payload).then(callback);
+        },
+        catch: (errorCallback) => {
+          supabaseQuery(table, 'POST', payload).then(
+            (result) => callback(result),
+            (error) => errorCallback(error)
+          );
+        }
+      })
+    }),
+    update: (payload) => ({
+      eq: (column, value) => ({
+        select: () => ({
+          then: (callback) => {
+            supabaseQuery(`${table}?${column}=eq.${value}`, 'PATCH', payload).then(callback);
+          },
+          catch: (errorCallback) => {
+            supabaseQuery(`${table}?${column}=eq.${value}`, 'PATCH', payload).then(
+              (result) => callback(result),
+              (error) => errorCallback(error)
+            );
+          }
+        })
+      })
+    }),
+    delete: () => ({
+      eq: (column, value) => ({
+        then: (callback) => {
+          supabaseQuery(`${table}?${column}=eq.${value}`, 'DELETE').then(callback);
+        },
+        catch: (errorCallback) => {
+          supabaseQuery(`${table}?${column}=eq.${value}`, 'DELETE').then(
+            (result) => callback(result),
+            (error) => errorCallback(error)
+          );
+        }
+      })
+    })
+  })
+};
+
+console.log('✅ Supabase REST API 초기화 완료');

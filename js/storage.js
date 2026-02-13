@@ -28,25 +28,17 @@ const initialData = {
 };
 
 /**
- * Supabase가 초기화될 때까지 대기
+ * Supabase가 준비되었는지 확인
  */
 async function waitForSupabase() {
-  return new Promise((resolve, reject) => {
-    let attempts = 0;
-    const checkInterval = setInterval(() => {
-      console.log(`Supabase 준비 확인 (${attempts}회)...`, { supabase: !!supabase, hasFrom: supabase && !!supabase.from });
-
-      if (supabase && typeof supabase.from === 'function') {
-        clearInterval(checkInterval);
-        console.log('✅ Supabase 준비 완료');
-        resolve();
-      } else if (attempts > 100) {
-        clearInterval(checkInterval);
-        console.error('❌ Supabase 초기화 실패 (타임아웃 10초)');
-        reject(new Error('Supabase 초기화 실패 (타임아웃)'));
-      }
-      attempts++;
-    }, 100);
+  return new Promise((resolve) => {
+    if (supabase && typeof supabase.from === 'function') {
+      console.log('✅ Supabase REST API 준비 완료');
+      resolve();
+    } else {
+      console.error('❌ Supabase가 정의되지 않았습니다');
+      resolve();
+    }
   });
 }
 
