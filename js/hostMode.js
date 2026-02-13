@@ -272,14 +272,18 @@ async function deleteCategoryHandler(categoryId) {
 }
 
 /**
- * 카테고리 순서 변경 처리
+ * 카테고리 순서 변경 처리 (D&D 후)
  */
-async function reorderCategoryHandler(categoryId, direction) {
+async function handleCategoryReorder(orderedIds) {
   if (!isHostMode) return;
 
-  const result = await reorderCategory(categoryId, direction);
-  if (result) {
-    updateUI();
+  try {
+    await updateCategoryPositions(orderedIds);
+    await renderHostPanel();
+    await renderCategories();
+  } catch (error) {
+    console.error('카테고리 순서 변경 오류:', error);
+    alert('카테고리 순서 변경에 실패했습니다: ' + error.message);
   }
 }
 

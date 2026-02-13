@@ -125,9 +125,16 @@ async function getLink(linkId) {
  * 카테고리 추가
  */
 async function addCategory(categoryData) {
+  // 다음 position 계산
+  const existing = await getAllCategories();
+  const nextPosition = existing.length > 0
+    ? Math.max(...existing.map(c => c.position ?? 0)) + 1
+    : 0;
+
   const payload = {
     name: categoryData.name,
-    description: categoryData.description || null
+    description: categoryData.description || null,
+    position: nextPosition
   };
 
   const result = await supabaseRequest('/categories', {
@@ -183,24 +190,27 @@ async function getCategory(categoryId) {
 }
 
 /**
- * 모든 카테고리 조회
+ * 모든 카테고리 조회 (position 순서로 정렬)
  */
 async function getAllCategories() {
-  const categories = await supabaseRequest('/categories?order=created_at.asc');
+  const categories = await supabaseRequest('/categories?order=position.asc,created_at.asc');
   return categories;
 }
 
 /**
- * 카테고리 순서 변경 (위치 업데이트)
- * 주의: Supabase에서는 순서를 저장할 별도 필드가 필요함
- * 현재는 created_at 기준으로 정렬되므로, 실제 순서 변경을 위해서는 position 필드 추가 필요
+ * 카테고리들의 순서 일괄 업데이트
+ * @param {string[]} orderedIds - 새로운 순서의 카테고리 ID 배열
  */
-async function reorderCategory(categoryId, direction) {
-  // Supabase에서는 order 필드가 없으므로 created_at을 조정
-  // 또는 position 필드를 추가해야 함
-  // 임시 해결책: 클라이언트에서만 정렬
-  console.warn('⚠️ Supabase에서 카테고리 순서 변경은 클라이언트 측에서 처리해야 합니다.');
-  return false;
+async function updateCategoryPositions(orderedIds) {
+  const updates = orderedIds.map((id, index) =>
+    supabaseRequest(`/categories?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ position: index })
+    })
+  );
+
+  await Promise.all(updates);
+  return true;
 }
 
 /**

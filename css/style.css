@@ -106,6 +106,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    min-height: 2rem;
 }
 
 .category-list button,
@@ -248,6 +249,22 @@ body {
     border-color: #ddd;
 }
 
+/* D&D 시각 피드백 */
+.category-item-host[draggable="true"] {
+    cursor: grab;
+}
+
+.category-item-host.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+}
+
+.category-item-host.drag-over {
+    border-color: #2F80ED;
+    border-style: dashed;
+    background-color: #f0f5ff;
+}
+
 .category-name {
     font-size: 0.9rem;
     color: #333;
@@ -281,6 +298,7 @@ body {
 .links-list {
     display: grid;
     gap: 1.5rem;
+    min-height: 4rem;
 }
 
 .link-card {
